@@ -52,10 +52,7 @@ namespace TestingWebSocketServiceDisplay.Services
                                 try
                                 {
                                     counterBlocks++;
-                                    if (message2.Contains("remove_event"))
-                                    {
-
-                                    }
+                                   
                                     if (message2.Contains("balance") && message2.Contains("open_stake"))
                                     {
                                         var jsonObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(message2);
@@ -74,8 +71,8 @@ namespace TestingWebSocketServiceDisplay.Services
                                     }
                                     else if (message2.Contains("remove_event"))
                                     {
-                                        _data.Clear();
-                                        // await RemoveEvent(message2);
+                                        //_data.Clear();
+                                        await RemoveEvent(message2);
                                     }
                                     else if (message2.Contains("info"))
                                     {
@@ -104,12 +101,14 @@ namespace TestingWebSocketServiceDisplay.Services
 
                                                                 // Notify all connected clients of the updated data using SignalR
 
+                                                             //   await _hubContext.Clients.All.SendAsync("UpdateData", eventObj);
                                                                 await _hubContext.Clients.All.SendAsync("UpdateData", _data);
+
                                                             }
                                                             else
                                                             {
                                                                 var containsVal = _data[keyEvent];
-                                                                _data.TryUpdate(keyEvent, eventObj, containsVal);
+                                                                _data.TryUpdate("UPDATED " + keyEvent, eventObj, containsVal);
                                                             }
                                                         }
                                                         break;
@@ -149,6 +148,51 @@ namespace TestingWebSocketServiceDisplay.Services
             }, cancellationToken);
 
             return Task.CompletedTask;
+        }
+        private async Task RemoveEvent(string message2)
+        {
+            if (RootObject.TryParse(message2, out RootObject myObj))
+            {
+                // Uspesno deserijalizovan objekat
+                Console.WriteLine(myObj.ts + " " + myObj.data);
+                RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
+                // Access the data
+                foreach (object[] obj in root.data)
+                {
+                    string dataType = (string)obj[0];
+                    Event eventObj = new();
+
+                    switch (dataType)
+                    {
+                        case "remove_event":
+                            if (Event.TryParse(obj[1], out eventObj))
+                            {
+                                string keyEvent = eventObj.sport + "_" + eventObj.event_id;
+
+                                if (_data.ContainsKey(keyEvent))
+                                {
+                                    var th = Task.Run(() => RemoveAsync(keyEvent, eventObj));
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Greska pri deserijalizaciji.");
+            }
+        }
+        private async Task RemoveAsync(string key, Event eventObj)
+        {
+            await Task.Run(() =>
+            {
+                KeyValuePair<string, Event> eventKeyValuePair = new(key, eventObj);
+                _data.TryRemove(eventKeyValuePair);
+            });
+
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

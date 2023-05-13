@@ -23,8 +23,6 @@ namespace TestingWebSocketDisplayService2222.Controllers
             _hubContext = hubContext;
             //_data = backgroundTask._data;
 
-
-
         }
 
         public IActionResult Index()

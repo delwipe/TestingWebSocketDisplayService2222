@@ -47,7 +47,6 @@
                 row = table.insertRow();
                 rows[eventId] = row;
             }
-
             // Update the row with the latest data
             row.innerHTML = `
           <td>${eventData.sport}</td>
@@ -62,35 +61,4 @@
         `;
         });
     });
-
-
-
-
-    // Create a new SignalR connection and proxy object
-    //var connection = new signalR.HubConnectionBuilder()
-    //    .withUrl('/MyHub')
-    //    .build();
-
-    //// Start the SignalR connection
-    //connection.start().then(function () {
-    //    console.log('SignalR connected');
-    //});
-
-    //// Define an event handler for the "UpdateData" event
-    //connection.on('UpdateData', function (data) {
-    //    console.log('Data updated:', data);
-
-    //     //Update the data container with the latest data
-
-
-
-
-
-    //    var eventRow = document.createElement("p");
-    //    eventRow.innerHTML = JSON.stringify(data);
-
-    //    ////container.innerHTML = JSON.stringify(data);
-    //    container.appendChild(eventRow);
-
-    //});
 </script>
