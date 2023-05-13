@@ -108,7 +108,8 @@ namespace TestingWebSocketServiceDisplay.Services
                                                             else
                                                             {
                                                                 var containsVal = _data[keyEvent];
-                                                                _data.TryUpdate("UPDATED " + keyEvent, eventObj, containsVal);
+                                                                eventObj.sport = "UPDATED " + eventObj.sport;
+                                                                _data.TryUpdate(keyEvent, eventObj, containsVal);
                                                             }
                                                         }
                                                         break;
