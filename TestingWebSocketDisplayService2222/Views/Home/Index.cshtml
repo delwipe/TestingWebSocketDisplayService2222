@@ -1,0 +1,96 @@
+﻿
+<div id="container"></div>
+<table id="eventsTable">
+    <thead>
+        <tr>
+            <th>Sport</th>
+            <th>Event ID</th>
+            <th>Competition ID</th>
+            <th>Competition Name</th>
+            <th>Competition Country</th>
+            <th>Home</th>
+            <th>Away</th>
+            <th>IR Status</th>
+            <th>Start Time</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/signalr/dist/browser/signalr.min.js"></script>
+<script>
+
+    var table = document.getElementById("eventsTable");
+
+    // Define a dictionary to store the rows for each event ID
+    var rows = {};
+    var connection = new signalR.HubConnectionBuilder()
+        .withUrl('/MyHub')
+        .build();
+
+    // Start the SignalR connection
+    connection.start().then(function () {
+        console.log('SignalR connected');
+    });
+
+    connection.on('UpdateData', function (data) {
+        console.log('Data updated:', data);
+
+        // Loop through the data and create or update the rows in the table
+        Object.keys(data).forEach(function (eventId) {
+            var eventData = data[eventId];
+
+            // Check if a row already exists for this event ID
+            var row = rows[eventId];
+            if (!row) {
+                // If no row exists, create a new one and add it to the table
+                row = table.insertRow();
+                rows[eventId] = row;
+            }
+
+            // Update the row with the latest data
+            row.innerHTML = `
+          <td>${eventData.sport}</td>
+          <td>${eventData.event_id}</td>
+          <td>${eventData.competition_id}</td>
+          <td>${eventData.competition_name}</td>
+          <td>${eventData.competition_country}</td>
+          <td>${eventData.home}</td>
+          <td>${eventData.away}</td>
+          <td>${eventData.ir_status}</td>
+          <td>${eventData.start_time}</td>
+        `;
+        });
+    });
+
+
+
+
+    // Create a new SignalR connection and proxy object
+    //var connection = new signalR.HubConnectionBuilder()
+    //    .withUrl('/MyHub')
+    //    .build();
+
+    //// Start the SignalR connection
+    //connection.start().then(function () {
+    //    console.log('SignalR connected');
+    //});
+
+    //// Define an event handler for the "UpdateData" event
+    //connection.on('UpdateData', function (data) {
+    //    console.log('Data updated:', data);
+
+    //     //Update the data container with the latest data
+
+
+
+
+
+    //    var eventRow = document.createElement("p");
+    //    eventRow.innerHTML = JSON.stringify(data);
+
+    //    ////container.innerHTML = JSON.stringify(data);
+    //    container.appendChild(eventRow);
+
+    //});
+</script>
