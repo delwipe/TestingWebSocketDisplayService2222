@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using TestingWebSocketDisplayService2222.Models;
 using TestingWebSocketServiceDisplay.Models;
+using TestingWebSocketServiceDisplay.Services;
 using TestingWebSocketServiceDisplay2222.Hubs;
 using TestingWebSocketServiceDisplay2222.Models;
 
@@ -16,13 +17,15 @@ namespace TestingWebSocketDisplayService2222.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IHubContext<MyHub> _hubContext;
         private readonly ConcurrentDictionary<string, Event> _data;
+        private readonly MyBackgroundTask myBackgroundTask;
 
         public HomeController(ILogger<HomeController> logger, IHubContext<MyHub> hubContext)
         {
             _logger = logger;
             _hubContext = hubContext;
             //_data = backgroundTask._data;
-
+            myBackgroundTask = new MyBackgroundTask(_data, hubContext);
+            var allData = myBackgroundTask._data;
         }
 
         public IActionResult Index()

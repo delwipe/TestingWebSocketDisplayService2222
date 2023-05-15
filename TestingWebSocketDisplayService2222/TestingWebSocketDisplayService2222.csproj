@@ -7,7 +7,55 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="wwwroot\Icons\american-football.png" />
+    <None Remove="wwwroot\Icons\baseball.png" />
+    <None Remove="wwwroot\Icons\basketball.png" />
+    <None Remove="wwwroot\Icons\boxing-gloves.png" />
+    <None Remove="wwwroot\Icons\cricket.png" />
+    <None Remove="wwwroot\Icons\football-game.png" />
+    <None Remove="wwwroot\Icons\hockey.png" />
+    <None Remove="wwwroot\Icons\tennis.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="wwwroot\Icons\cricket.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\Icons\american-football.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Icons\baseball.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Icons\basketball.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Icons\basketball_ht.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Icons\boxing-gloves.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Icons\football-game.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Icons\hockey.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Icons\rugby-league.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Icons\rugby-union.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Icons\tennis.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

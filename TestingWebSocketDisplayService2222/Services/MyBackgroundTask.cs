@@ -12,19 +12,23 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using TestingWebSocketServiceDisplay2222.Hubs;
 using TestingWebSocketServiceDisplay2222.Models;
+using System;
+using TestingWebSocketDisplayService2222.Models;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 
 namespace TestingWebSocketServiceDisplay.Services
 {
     public class MyBackgroundTask : IHostedService
     {
         public readonly ConcurrentDictionary<string, Event> _data;
+        public readonly ConcurrentDictionary<string, Offer> offers;
+
         private readonly IHubContext<MyHub> _hubContext;
-        private readonly string _webSocketUrl;
-        public MyBackgroundTask(ConcurrentDictionary<string, Event> data, IHubContext<MyHub> hubContext, string webSocketUrl)
+        public MyBackgroundTask(ConcurrentDictionary<string, Event> data, IHubContext<MyHub> hubContext)
         {
+            offers = new();
             _data = data;
             _hubContext = hubContext;
-            _webSocketUrl = webSocketUrl;
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -67,7 +71,7 @@ namespace TestingWebSocketServiceDisplay.Services
                                     }
                                     else if (message2.Contains("offer"))
                                     {
-                                        // await SetOffer(message2);
+                                        await SetOffer(message2);
                                     }
                                     else if (message2.Contains("remove_event"))
                                     {
@@ -93,22 +97,30 @@ namespace TestingWebSocketServiceDisplay.Services
                                                     case "event":
                                                         if (Event.TryParse(obj[1], out eventObj))
                                                         {
+
+                                                            if (eventObj.competition_name == "Italy Serie A2 Women")
+                                                            {
+
+                                                            }
                                                             string keyEvent = eventObj.sport + "_" + eventObj.event_id;
                                                             if (!_data.ContainsKey(keyEvent))
                                                             {
                                                                 _data.TryAdd(keyEvent, eventObj);
-
+                                                                string messageForWS = "[\"register_event\", " + "\"" + eventObj.sport + "\", " + "\"" + eventObj.event_id + "\"]";
+                                                                byte[] messageBytes = Encoding.UTF8.GetBytes(messageForWS);
+                                                                await client.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
 
                                                                 // Notify all connected clients of the updated data using SignalR
 
-                                                             //   await _hubContext.Clients.All.SendAsync("UpdateData", eventObj);
+                                                                //   await _hubContext.Clients.All.SendAsync("UpdateData", eventObj);
+
                                                                 await _hubContext.Clients.All.SendAsync("UpdateData", _data);
 
                                                             }
                                                             else
                                                             {
                                                                 var containsVal = _data[keyEvent];
-                                                                eventObj.sport = "UPDATED " + eventObj.sport;
+                                                                //eventObj.sport = "UPDATED " + eventObj.sport;
                                                                 _data.TryUpdate(keyEvent, eventObj, containsVal);
                                                             }
                                                         }
@@ -143,13 +155,48 @@ namespace TestingWebSocketServiceDisplay.Services
                         }
 
                         // Wait for a short interval before reading data again
-                        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                        await Task.Delay(TimeSpan.FromSeconds(0.5), cancellationToken);
                     }
                 }
             }, cancellationToken);
 
             return Task.CompletedTask;
         }
+        private async Task SetOffer(string message2)
+        {
+            if (RootObject.TryParse(message2, out RootObject myObj))
+            {
+                RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
+                foreach (object[] obj in root.data)
+                {
+                    string dataType = (string)obj[0];
+                    Offer offer = new();
+                    switch (dataType)
+                    {
+                        case "offer":
+                            if (Offer.TryParse(obj[1], out offer))
+                            {
+                                string keyEvent = offer.sport + "_" + offer.event_id;
+                                if (!offers.ContainsKey(keyEvent))
+                                {
+                                    offers.TryAdd(keyEvent, offer);
+                                }
+                                else
+                                {
+                                    offers.TryUpdate(keyEvent, offer, offers[keyEvent]);
+                                }
+                                await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
+
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        }
+
         private async Task RemoveEvent(string message2)
         {
             if (RootObject.TryParse(message2, out RootObject myObj))
@@ -188,11 +235,11 @@ namespace TestingWebSocketServiceDisplay.Services
         }
         private async Task RemoveAsync(string key, Event eventObj)
         {
-            await Task.Run(() =>
-            {
-                KeyValuePair<string, Event> eventKeyValuePair = new(key, eventObj);
+            KeyValuePair<string, Event> eventKeyValuePair = new(key, eventObj);
                 _data.TryRemove(eventKeyValuePair);
-            });
+                await _hubContext.Clients.All.SendAsync("UpdateData", _data);
+
+            
 
         }
 
