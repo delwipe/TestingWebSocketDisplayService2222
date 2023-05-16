@@ -183,7 +183,7 @@ namespace TestingWebSocketServiceDisplay.Services
                                 {
                                     offers.TryUpdate(keyEvent, offer, offers[keyEvent]);
                                 }
-                                await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
+                               // await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
 
                             }
                             break;
