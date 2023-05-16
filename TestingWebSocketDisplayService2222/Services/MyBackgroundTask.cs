@@ -195,6 +195,7 @@ namespace TestingWebSocketServiceDisplay2222.Services
 
         //}
 
+
         private async Task RemoveEvent(string message2)
         {
             if (RootObject.TryParse(message2, out RootObject myObj))
