@@ -16,12 +16,12 @@ using System;
 using TestingWebSocketDisplayService2222.Models;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
 
-namespace TestingWebSocketServiceDisplay.Services
+namespace TestingWebSocketServiceDisplay2222.Services
 {
     public class MyBackgroundTask : IHostedService
     {
         public readonly ConcurrentDictionary<string, Event> _data;
-        public readonly ConcurrentDictionary<string, Offer> offers;
+        public readonly ConcurrentDictionary<string, Models.Offer> offers;
 
         private readonly IHubContext<MyHub> _hubContext;
         public MyBackgroundTask(ConcurrentDictionary<string, Event> data, IHubContext<MyHub> hubContext)
