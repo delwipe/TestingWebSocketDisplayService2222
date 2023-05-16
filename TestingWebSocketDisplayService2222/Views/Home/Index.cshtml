@@ -1,42 +1,20 @@
-﻿
-<style>
-    .event-button, .event-live-button {
-        margin-right: 10px; /* set the right margin */
-        width: 150px;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-    }
-    select{
-        margin-right: 10px; /* set the right margin */
-    }
-    .imgMargin{
-        margin-left: 10px;
-    }
+﻿<link rel="stylesheet" href="~/css/events-display.css">
 
-   
-    #eventsTable td{
-       padding: 10px;
-       
-    }
-</style>
 @*`Leagues’, ‘Market’, and ‘Odds’*@
-
 <div class="d-flex justify-content-center">
-    <button class="event-live-button btn-primary rounded" id="btnLive">Live</button>
-
-    <button class="event-button btn-primary rounded" id="btnFootball">Football <img class="imgMargin" src="/Icons/football-game.png"/></button>
+    <button class="event-button btn-primary rounded" id="btnFootball">Football <img class="imgMargin" src="/Icons/football-game.png" /></button>
     <button class="event-button btn-primary rounded" id="btnBaseball">Baseball <img class="imgMargin" src="/Icons/baseball.png" /></button>
     <button class="event-button btn-primary rounded" id="btnTennis">Tennis <img class="imgMargin" src="/Icons/tennis.png" /></button>
     <button class="event-button btn-primary rounded" id="btnBasket">Basketball <img class="imgMargin" src="/Icons/basketball.png" /></button>
-    <button class="event-button btn-primary rounded" id="btnCricket">Cricket <img class="imgMargin" src="/Icons/cricket.png" /></button>
-
     <select class="form-select" id="listSelectSports">
         <option selected>More Sports</option>
     </select>
+</div>
+<div class="d-none justify-content-center" id="show-options">
+    <button class="event-live-button btn-primary rounded" id="btnLive">Live</button>
+    <button class="event-live-button btn-primary rounded" id="btn-pre-match">Pre-match</button>
     <select class="form-select" id="listSelect" aria-label="Default select example">
         <option selected>Select Leagues</option>
-
     </select>
 </div>
 <div id="container"></div>
@@ -49,12 +27,11 @@
         <col span="1" style="width: 15.83%;">
         <col span="1" style="width: 15.83%;">
         <col span="1" style="width: 15.83%;">
-
     </colgroup>
     <thead>
         <tr>
             <th>Sport</th>
-         @*   <th>Event ID</th>
+            @*   <th>Event ID</th>
             <th>Competition ID</th>*@
             <th>Competition Name</th>
             <th>Competition Country</th>
@@ -68,115 +45,71 @@
 </table>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/js/signalr/dist/browser/signalr.min.js"></script>
+<script src="/js/sports-list.js"></script>
+<script src="/js/buttons-handling.js"></script>
+<script src="/js/table-events-handle.js"></script>
 
 
 <script>
-    function getImagePath(sport) {
-        switch (sport) {
-            case "ru":
-                return "/Icons/rugby-union.png";
-            case "rl":
-                return "/Icons/rugby-league.png";
-            case "baseball":
-                return "/Icons/baseball.png";
-            case "af":
-                return "/Icons/american-football.png";
-            case "basket":
-                return "/Icons/basketball.png";
-             case "basket_ht":
-                return "/Icons/basketball_ht.jpg";
-            case "boxing":
-                return "/Icons/boxing-gloves.png";
-            case "cricket":
-                return "/Icons/cricket.png";
-            case "fb":
-            case "fb_ht":
-            case "fb_et":
-            case "fb_corn":
-            case "fb_corn_ht":
-            case "fb_htft":
-                return "/Icons/football-game.png";
-            case "ih":
-                return "/Icons/hockey.png";
-            case "tennis":
-                return "/Icons/tennis.png";
-            default:
-                return "";
-        }
-    }
     var connection = new signalR.HubConnectionBuilder()
         .withUrl('/MyHub')
         .build();
     //connection SignalR started
-
     connection.start().then(function () {
-        console.log('SignalR connected');
+        // console.log('SignalR connected');
     });
     var footballBtn = document.getElementById('btnFootball');
-        var baseballBtn = document.getElementById('btnBaseball');
+    var baseballBtn = document.getElementById('btnBaseball');
     var tennisBtn = document.getElementById('btnTennis');
     var basketballBtn = document.getElementById('btnBasket');
-    var cricketBtn = document.getElementById('btnCricket');
-    var allBtn = document.getElementById('btnAll');
     var liveBtn = document.getElementById('btnLive');
+    var preMatchBtn = document.getElementById('btn-pre-match');
     var selectList = document.getElementById('listSelect');
     var selectListSports = document.getElementById('listSelectSports');
     var currentSport = "";
     var isLiveClicked = false;
-    var lastClickedSport;
-    
+    var isPreMatchClicked = false;
+    var divLivePreMatch = document.getElementById('show-options');
     // Selecting League
     selectList.addEventListener("change", function () {
         var selectedValue = selectList.value;
-        // currentSport = selectedValue;
         const buttons = document.querySelectorAll(".event-button");
-        
-        //buttons.forEach(button => {
-
-        //    button.classList.remove('btn-danger');
-        //    button.classList.add('btn-primary');
-        //});
-        console.log("selectedListValue = " + selectedValue);
-
         displayEventData("getting_list_items");
     });
 
-    // Selecting Other Sports     
+    // Selecting Other Sports
     selectListSports.addEventListener("change", function () {
         var selectedValue = selectListSports.value;
-        // currentSport = selectedValue;
+        currentSport = selectedValue;
+        console.log('selected value = ' + currentSport);
         const buttons = document.querySelectorAll(".event-button");
         buttons.forEach(button => {
             button.classList.remove('btn-danger');
             button.classList.add('btn-primary');
         });
-        lastClickedSport = selectedValue;
-        console.log('selectedValue: ' + selectedValue);
-        displayEventData("getting_more_sports");
+        divLivePreMatch.classList.remove('d-none');
+        divLivePreMatch.classList.add('d-flex');
+        restartButtonLive();
+        restartButtonPrematch();
+        if (selectListSports.value === "More Sports") {
+            divLivePreMatch.classList.add('d-flex');
+
+            divLivePreMatch.classList.add('d-none');
+            displayEventData("displayAll");
+
+        }
+        else {
+            displayEventData("getting_more_sports");
+
+        }
     });
-
-    // Creating new Row for event
-    function createEventRow(eventData) {
-        var imagePath = getImagePath(eventData.sport);
-        return `
-                  <td><img style="width:30px" src="${imagePath}" /></td>
-                  <td>${eventData.competition_name}</td>
-                  <td>${eventData.competition_country}</td>
-                  <td>${eventData.home}</td>
-                  <td>${eventData.away}</td>
-                  <td>${eventData.ir_status}</td>
-                  <td>${eventData.start_time}</td>
-              `;
-    }
-
     // Displaying sport
     function displayEventData(sport) {
-        if (currentSport !== sport) {
-            connection.off('UpdateData');
-            rows = {};
-        }
+        connection.off('UpdateData');
+        rows = {};
+
         // Set the currentSport variable to the new sport
-        currentSport = sport;
+        //   currentSport = sport;
         var table = document.getElementById("eventsTable");
         var rowCount = table.rows.length;
         for (var i = rowCount - 1; i > 0; i--) {
@@ -185,44 +118,59 @@
         // Define a dictionary to store the rows for each event ID
         var rows = {};
         //selectList.options.length = 0;
-        var allItems = [];       
-        connection.on('UpdateData', function (data) {    
-            if (sport !== "getting_list_items"){
+        var allItems = [];
+        connection.on('UpdateData', function (data) {
+            if (sport !== "getting_list_items") {
                 for (var i = selectList.options.length - 1; i > 0; i--) {
                     selectList.remove(i);
                 }
-            }       
-            // set the value of the first option to "Select Leagues"
-            //selectList.options[0].value = "ABC";
-            //selectList.options[0].selected = true;
+            }
             allItems = [];
-            console.log("selectedListSports: " + selectListSports.selectedValue);
+
             Object.keys(data).forEach(function (eventId) {
-                var eventData = data[eventId];               
-                if (sport == "displayAll") {
+                var eventData = data[eventId];
+                if (sport == "displayAll" || sport == "") {
                     SetOptionsForLeagueList(allItems, eventData, selectList);
                     SetRow(rows, table, eventId, eventData);
                 }
-                else if (eventData.ir_status === "in_running" && sport == "in_running") {
-                    SetRow(rows, table, eventId, eventData);
-                }
-                else if (eventData.sport === sport && !isLiveClicked) {
+                //else if (eventData.ir_status === "in_running" && sport == "in_running") {
+                //    SetRow(rows, table, eventId, eventData);
+                //}
+                else if (eventData.sport === sport && !isLiveClicked && !isPreMatchClicked) {
                     SetOptionsForLeagueList(allItems, eventData, selectList);
                     SetRow(rows, table, eventId, eventData);
                 }
-                else if (eventData.sport === sport && eventData.ir_status === "in_running" && isLiveClicked) {
+                else if (eventData.sport === sport && isLiveClicked && eventData.ir_status == "in_running") {
+                    console.log("sport: " + sport);
                     SetOptionsForLeagueList(allItems, eventData, selectList);
                     SetRow(rows, table, eventId, eventData);
                 }
-                else if (sport === "getting_list_items" && eventData.competition_name == selectList.value) {
+                else if (eventData.sport === sport && isPreMatchClicked && eventData.ir_status == "pre_event") {
+                    console.log("sport: " + sport);
+                    SetOptionsForLeagueList(allItems, eventData, selectList);
+                    SetRow(rows, table, eventId, eventData);
+                }
+                else if (sport === "getting_list_items" && eventData.competition_name === selectList.value && !isLiveClicked && !isPreMatchClicked) {
                     ///method for leagues
                     SetRow(rows, table, eventId, eventData);
                 }
-                else if (sport === "getting_more_sports" && eventData.sport == selectListSports.value && !isLiveClicked) {
+                else if (sport === "getting_list_items" && eventData.competition_name === selectList.value && isLiveClicked && eventData.ir_status === "in_running") {
+                    ///method for leagues
+                    SetRow(rows, table, eventId, eventData);
+                }
+                else if (sport === "getting_list_items" && eventData.competition_name === selectList.value && isPreMatchClicked && eventData.ir_status === "pre_event") {
+                    ///method for leagues
+                    SetRow(rows, table, eventId, eventData);
+                }
+                else if (sport === "getting_more_sports" && eventData.sport == selectListSports.value && !isLiveClicked && !isPreMatchClicked) {
                     SetOptionsForLeagueList(allItems, eventData, selectList);
                     SetRow(rows, table, eventId, eventData);
                 }
                 else if (sport === "getting_more_sports" && eventData.sport == selectListSports.value && isLiveClicked && eventData.ir_status === "in_running") {
+                    SetOptionsForLeagueList(allItems, eventData, selectList);
+                    SetRow(rows, table, eventId, eventData);
+                }
+                else if (sport === "getting_more_sports" && eventData.sport == selectListSports.value && isPreMatchClicked && eventData.ir_status === "pre_event") {
                     SetOptionsForLeagueList(allItems, eventData, selectList);
                     SetRow(rows, table, eventId, eventData);
                 }
@@ -239,133 +187,52 @@
             selectList.add(option);
         }
     }
-    function SetRow(rows, table, eventId, eventData){
-        var row = rows[eventId];
-        checkingRow(table, row, eventId, rows);
-        row.innerHTML = createEventRow(eventData);
-    }
-    function checkingRow(table, row, eventId, rows){
-        if (!row) {
-            // If no row exists, create a new one and add it to the table
-            row = table.insertRow();
-            rows[eventId] = row;
-        }
-    }
-    function highlightButtonLive(clickedButton) {
-        if (isLiveClicked && clickedButton == liveBtn) {
-            liveBtn.classList.remove('btn-primary');
-            liveBtn.classList.add('btn-danger');
-        }
-        else if (!isLiveClicked && clickedButton == liveBtn) {
-            liveBtn.classList.remove('btn-danger');
-            liveBtn.classList.add('btn-primary');
-        }
-    }
-    // Changing button background if button is clicked
-    function highlightButton(clickedButton) {
-        const buttons = document.querySelectorAll(".event-button");      
+    function highlightButton(clickedButton, currentSport) {
+        const buttons = document.querySelectorAll(".event-button");
         selectListSports.selectedIndex = 0;
         buttons.forEach(button => {
             if (button === clickedButton) {
-                button.classList.remove('btn-primary');
-                button.classList.add('btn-danger');
-            } else {
-
+                if (button.classList.contains('btn-danger')) {
+                    divLivePreMatch.classList.remove('d-flex');
+                    divLivePreMatch.classList.add('d-none');
+                    // nije kliknuto
+                    button.classList.remove('btn-danger');
+                    button.classList.add('btn-primary');
+                    currentSport = "";
+                }
+                else {
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-danger');
+                    divLivePreMatch.classList.remove('d-none');
+                    divLivePreMatch.classList.add('d-flex');
+                    console.log("current sport: " + currentSport);
+                }
+            }
+            else {
                 button.classList.remove('btn-danger');
                 button.classList.add('btn-primary');
             }
         });
     }
-    footballBtn.addEventListener("click", function () {
-        lastClickedSport = footballBtn;
-        highlightButton(footballBtn);
-        displayEventData("fb");
-    });    
-    baseballBtn.addEventListener("click", function () {
-        lastClickedSport = baseballBtn;
-        highlightButton(baseballBtn);
-        displayEventData("baseball");
-    });
-    tennisBtn.addEventListener("click", function () {
-        lastClickedSport = baseballBtn;
-        highlightButton(tennisBtn);
-        displayEventData("tennis");
-    });
-    basketballBtn.addEventListener("click", function () {
-        lastClickedSport = baseballBtn;
-        highlightButton(basketballBtn);
-        displayEventData("basket");
-    });
-    cricketBtn.addEventListener("click", function () {
-        lastClickedSport = baseballBtn;
-        highlightButton(cricketBtn);
-        displayEventData("cricket");
-    });
-    liveBtn.addEventListener("click", function () {
-        if (isLiveClicked) {
-            isLiveClicked = false;
-            highlightButtonLive(liveBtn);
-        }
-        else {
-            isLiveClicked = true;
-            highlightButtonLive(liveBtn);
-            displayEventData("in_running");
-        }      
-    });
-
-    //Adding all sports to select list
-    var sports = ["fb_ht", "fb_et", "fb_corn", "fb_corn_ht", "fb_htft", "af", "ru", "rl", "ih", "boxing"];
-    sports.forEach(function (sport) {
-            var option = document.createElement("option");
-            option.value = sport;     
-            if (sport === "fb_ht") {
-                option.text = "Football, first half";
-            }
-            if (sport === "fb_et") {
-                option.text = "Football, extra time";
-            }
-            if (sport === "fb_corn") {
-                option.text = "Football, the number of corners awarded in 90 minutes";
-            }
-            if (sport === "fb_corn_ht") {
-                option.text = "Football, the number of corners, first half only";
-            }
-            if (sport === "fb_htft") {
-                option.text = "Football, bets on combined result at half-time and full-time";
-            }
-            if (sport === "af") {
-                option.text = "American football (includes Canadian football)";
-            }
-            if (sport === "ru") {
-                option.text = "Rugby Union";
-            }
-            if (sport === "rl") {
-                option.text = "Rugby League";
-            }
-            if (sport === "ih") {
-                option.text = "Ice Hockey";
-            }
-            if (sport === "boxing") {
-                option.text = "Boxing";
-                option.value = "boxing";
-                console.log("option.value for boxing: " + option.value);
-            }
-            document.getElementById("listSelectSports").appendChild(option);
-        });
     // Getting All data when page is loaded
-    document.addEventListener("DOMContentLoaded", function(){
+    document.addEventListener("DOMContentLoaded", function () {
+        HandlingSports();
+        console.log("display All should be called ")
         displayEventData("displayAll");
     });
-    var container = document.getElementById('container');
-    // Define an event handler for the "UpdateData" event
-    connection.on('UpdateDataOffers', function (data) {
-            console.log('Data Offers:', data);
-            var eventRow = document.createElement("p");
-            eventRow.innerHTML = JSON.stringify(data);
+        //
+        //FOR OFFERS
 
-            ////container.innerHTML = JSON.stringify(data);
-            container.appendChild(eventRow);
+        //var container = document.getElementById('container');
+        //// Define an event handler for the "UpdateData" event
+        //connection.on('UpdateDataOffers', function (data) {
+        //        console.log('Data Offers:', data);
+        //        var eventRow = document.createElement("p");
+        //        eventRow.innerHTML = JSON.stringify(data);
 
-        });
-    
+        //        ////container.innerHTML = JSON.stringify(data);
+        //        container.appendChild(eventRow);
+
+        //    });
+
 </script>

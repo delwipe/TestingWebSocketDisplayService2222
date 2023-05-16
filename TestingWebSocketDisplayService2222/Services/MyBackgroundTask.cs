@@ -97,31 +97,29 @@ namespace TestingWebSocketServiceDisplay.Services
                                                     case "event":
                                                         if (Event.TryParse(obj[1], out eventObj))
                                                         {
-
-                                                            if (eventObj.competition_name == "Italy Serie A2 Women")
-                                                            {
-
-                                                            }
                                                             string keyEvent = eventObj.sport + "_" + eventObj.event_id;
-                                                            if (!_data.ContainsKey(keyEvent))
+                                                            if (eventObj.sport != "cricket")
                                                             {
-                                                                _data.TryAdd(keyEvent, eventObj);
-                                                                string messageForWS = "[\"register_event\", " + "\"" + eventObj.sport + "\", " + "\"" + eventObj.event_id + "\"]";
-                                                                byte[] messageBytes = Encoding.UTF8.GetBytes(messageForWS);
-                                                                await client.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                                                                if (!_data.ContainsKey(keyEvent))
+                                                                {
+                                                                    _data.TryAdd(keyEvent, eventObj);
+                                                                    string messageForWS = "[\"register_event\", " + "\"" + eventObj.sport + "\", " + "\"" + eventObj.event_id + "\"]";
+                                                                    byte[] messageBytes = Encoding.UTF8.GetBytes(messageForWS);
+                                                                    await client.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
 
-                                                                // Notify all connected clients of the updated data using SignalR
+                                                                    // Notify all connected clients of the updated data using SignalR
 
-                                                                //   await _hubContext.Clients.All.SendAsync("UpdateData", eventObj);
+                                                                    //   await _hubContext.Clients.All.SendAsync("UpdateData", eventObj);
 
-                                                                await _hubContext.Clients.All.SendAsync("UpdateData", _data);
+                                                                    await _hubContext.Clients.All.SendAsync("UpdateData", _data);
 
-                                                            }
-                                                            else
-                                                            {
-                                                                var containsVal = _data[keyEvent];
-                                                                //eventObj.sport = "UPDATED " + eventObj.sport;
-                                                                _data.TryUpdate(keyEvent, eventObj, containsVal);
+                                                                }
+                                                                else
+                                                                {
+                                                                    var containsVal = _data[keyEvent];
+                                                                    //eventObj.sport = "UPDATED " + eventObj.sport;
+                                                                    _data.TryUpdate(keyEvent, eventObj, containsVal);
+                                                                }
                                                             }
                                                         }
                                                         break;
