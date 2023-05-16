@@ -71,7 +71,7 @@ namespace TestingWebSocketServiceDisplay2222.Services
                                     }
                                     else if (message2.Contains("offer"))
                                     {
-                                        await SetOffer(message2);
+                                        //await SetOffer(message2);
                                     }
                                     else if (message2.Contains("remove_event"))
                                     {
@@ -160,40 +160,40 @@ namespace TestingWebSocketServiceDisplay2222.Services
 
             return Task.CompletedTask;
         }
-        private async Task SetOffer(string message2)
-        {
-            if (RootObject.TryParse(message2, out RootObject myObj))
-            {
-                RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
-                foreach (object[] obj in root.data)
-                {
-                    string dataType = (string)obj[0];
-                    Offer offer = new();
-                    switch (dataType)
-                    {
-                        case "offer":
-                            if (Offer.TryParse(obj[1], out offer))
-                            {
-                                string keyEvent = offer.sport + "_" + offer.event_id;
-                                //if (!offers.ContainsKey(keyEvent))
-                                //{
-                                //    offers.TryAdd(keyEvent, offer);
-                                //}
-                                //else
-                                //{
-                                //    offers.TryUpdate(keyEvent, offer, offers[keyEvent]);
-                                //}
-                               // await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
+        //private async Task SetOffer(string message2)
+        //{
+        //    if (RootObject.TryParse(message2, out RootObject myObj))
+        //    {
+        //        RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
+        //        foreach (object[] obj in root.data)
+        //        {
+        //            string dataType = (string)obj[0];
+        //           // Offer offer = new();
+        //            switch (dataType)
+        //            {
+        //                case "offer":
+        //                    if (Offer.TryParse(obj[1], out offer))
+        //                    {
+        //                        string keyEvent = offer.sport + "_" + offer.event_id;
+        //                        //if (!offers.ContainsKey(keyEvent))
+        //                        //{
+        //                        //    offers.TryAdd(keyEvent, offer);
+        //                        //}
+        //                        //else
+        //                        //{
+        //                        //    offers.TryUpdate(keyEvent, offer, offers[keyEvent]);
+        //                        //}
+        //                       // await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
 
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
+        //                    }
+        //                    break;
+        //                default:
+        //                    break;
+        //            }
+        //        }
+        //    }
 
-        }
+        //}
 
         private async Task RemoveEvent(string message2)
         {
