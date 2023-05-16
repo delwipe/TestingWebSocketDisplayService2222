@@ -21,12 +21,12 @@ namespace TestingWebSocketServiceDisplay2222.Services
     public class MyBackgroundTask : IHostedService
     {
         public readonly ConcurrentDictionary<string, Event> _data;
-        public readonly ConcurrentDictionary<string, Models.Offer> offers;
+        //public readonly ConcurrentDictionary<string, Models.Offer> offers;
 
         private readonly IHubContext<MyHub> _hubContext;
         public MyBackgroundTask(ConcurrentDictionary<string, Event> data, IHubContext<MyHub> hubContext)
         {
-            offers = new();
+            //offers = new();
             _data = data;
             _hubContext = hubContext;
         }
@@ -175,14 +175,14 @@ namespace TestingWebSocketServiceDisplay2222.Services
                             if (Offer.TryParse(obj[1], out offer))
                             {
                                 string keyEvent = offer.sport + "_" + offer.event_id;
-                                if (!offers.ContainsKey(keyEvent))
-                                {
-                                    offers.TryAdd(keyEvent, offer);
-                                }
-                                else
-                                {
-                                    offers.TryUpdate(keyEvent, offer, offers[keyEvent]);
-                                }
+                                //if (!offers.ContainsKey(keyEvent))
+                                //{
+                                //    offers.TryAdd(keyEvent, offer);
+                                //}
+                                //else
+                                //{
+                                //    offers.TryUpdate(keyEvent, offer, offers[keyEvent]);
+                                //}
                                // await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
 
                             }
