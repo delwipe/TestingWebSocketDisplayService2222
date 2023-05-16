@@ -1,0 +1,24 @@
+﻿.event-button, .event-live-button {
+    margin-right: 10px; /* set the right margin */
+    width: 150px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+select {
+    margin-right: 10px; /* set the right margin */
+}
+
+.imgMargin {
+    margin-left: 10px;
+}
+
+
+#eventsTable td {
+    padding: 10px;
+}
+
+#show-options {
+    margin-top: 10px;
+}
