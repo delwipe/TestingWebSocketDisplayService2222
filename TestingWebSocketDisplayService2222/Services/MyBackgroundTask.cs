@@ -16,38 +16,169 @@ using System;
 using TestingWebSocketDisplayService2222.Models;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
 using System.Globalization;
+using System.Linq;
+using System.Threading;
 
 namespace TestingWebSocketServiceDisplay2222.Services
 {
-    public class MyBackgroundTask : IHostedService
+    public class MyBackgroundTask : BackgroundService
     {
         public readonly ConcurrentDictionary<string, Event> _data;
         public readonly ConcurrentDictionary<string, Models.Offer> offers;
+        readonly ILogger<MyBackgroundTask> _logger;
 
         private readonly IHubContext<MyHub> _hubContext;
-        public MyBackgroundTask(ConcurrentDictionary<string, Event> data, IHubContext<MyHub> hubContext)
+        public MyBackgroundTask(ConcurrentDictionary<string, Event> data, IHubContext<MyHub> hubContext, ILogger<MyBackgroundTask> logger)
         {
             //offers = new();
             _data = data;
             _hubContext = hubContext;
+            _logger = logger;
         }
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Service started.");
+           
+            
+        }
+        private async Task RemoveOffer(string message2)
+        {
+            if (RootObject.TryParse(message2, out RootObject myObj))
+            {
+                RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
+                foreach (object[] obj in root.data)
+                {
+                    string dataType = (string)obj[0];
+                    Offer offerData = new();
+                    switch (dataType)
+                    {
+                        case "remove_offer":
+                            if (Offer.TryParse(obj[1], out offerData))
+                            {
+                                string keyEvent = offerData.sport + "_" + offerData.event_id;
+                                if (offers.ContainsKey(keyEvent))
+                                {
+                                    KeyValuePair<string, Offer> offerDelete = new KeyValuePair<string, Offer>(keyEvent, offerData);
+                                    offers.TryRemove(offerDelete);
+                                }
+                               
+                                await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
+
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        }
+        private async Task SetOffer(string message2)
+        {
+            if (RootObject.TryParse(message2, out RootObject myObj))
+            {
+                RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
+                foreach (object[] obj in root.data)
+                {
+                    string dataType = (string)obj[0];
+                    Offer offerData = new();
+                    switch (dataType)
+                    {
+                        case "offer":
+                            if (Offer.TryParse(obj[1], out offerData))
+                            {
+                                string keyEvent = offerData.sport + "_" + offerData.event_id;
+                                if (!offers.ContainsKey(keyEvent))
+                                {
+                                    offers.TryAdd(keyEvent, offerData);
+                                }
+                                else
+                                {
+                                    offers.TryUpdate(keyEvent, offerData, offers[keyEvent]);
+                                }
+                                // await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
+
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        }
+
+
+        private async Task RemoveEvent(string message2)
+        {
+            if (RootObject.TryParse(message2, out RootObject myObj))
+            {
+                // Uspesno deserijalizovan objekat
+                Console.WriteLine(myObj.ts + " " + myObj.data);
+                RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
+                // Access the data
+                foreach (object[] obj in root.data)
+                {
+                    string dataType = (string)obj[0];
+                    Event eventObj = new();
+
+                    switch (dataType)
+                    {
+                        case "remove_event":
+                            if (Event.TryParse(obj[1], out eventObj))
+                            {
+                                string keyEvent = eventObj.sport + "_" + eventObj.event_id;
+
+                                if (_data.ContainsKey(keyEvent))
+                                {
+                                    var th = Task.Run(() => RemoveAsync(keyEvent, eventObj));
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Greska pri deserijalizaciji.");
+            }
+        }
+        private async Task RemoveAsync(string key, Event eventObj)
+        {
+            KeyValuePair<string, Event> eventKeyValuePair = new(key, eventObj);
+                _data.TryRemove(eventKeyValuePair);
+                await _hubContext.Clients.All.SendAsync("UpdateData", _data);
+
+            
+
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Service stopped.");
+
+            return Task.CompletedTask;
+        }
+
+        protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             List<byte> messageBuffer = new List<byte>();
             try
             {
-                Task.Run(async () =>
-                {
+                
                     using (var client = new ClientWebSocket())
                     {
-                        await client.ConnectAsync(new Uri("wss://api.mollybet.com/v1/stream/?token=0b3d091f40ec64f8417c94603d85e5a5"), cancellationToken);
+                        await client.ConnectAsync(new Uri("wss://api.mollybet.com/v1/stream/?token=0b3d091f40ec64f8417c94603d85e5a5"), stoppingToken);
                         int counterBlocks = 0;
-                        while (!cancellationToken.IsCancellationRequested)
+                        while (!stoppingToken.IsCancellationRequested)
                         {
+                            _logger.LogInformation("Worker running at:{time}", DateTime.Now);
                             try
                             {
                                 var buffer = new byte[4 * 1024];
-                                var result = await client.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                                var result = await client.ReceiveAsync(new ArraySegment<byte>(buffer), stoppingToken);
                                 messageBuffer.AddRange(buffer.Take(result.Count));
                                 if (result.EndOfMessage)
                                 {
@@ -205,134 +336,15 @@ namespace TestingWebSocketServiceDisplay2222.Services
                             //StartAsync(cancellationToken);
                         }
                     }
-                }, cancellationToken);
+              
                 Console.WriteLine("aaaa");
-                return Task.CompletedTask;
+                //return Task.CompletedTask;
             }
             catch (Exception ex)
             {
 
                 throw new Exception("Exception in StartAsync: " + ex.Message);
             }
-            
-        }
-        private async Task RemoveOffer(string message2)
-        {
-            if (RootObject.TryParse(message2, out RootObject myObj))
-            {
-                RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
-                foreach (object[] obj in root.data)
-                {
-                    string dataType = (string)obj[0];
-                    Offer offerData = new();
-                    switch (dataType)
-                    {
-                        case "remove_offer":
-                            if (Offer.TryParse(obj[1], out offerData))
-                            {
-                                string keyEvent = offerData.sport + "_" + offerData.event_id;
-                                if (offers.ContainsKey(keyEvent))
-                                {
-                                    KeyValuePair<string, Offer> offerDelete = new KeyValuePair<string, Offer>(keyEvent, offerData);
-                                    offers.TryRemove(offerDelete);
-                                }
-                               
-                                await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
-
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        }
-        private async Task SetOffer(string message2)
-        {
-            if (RootObject.TryParse(message2, out RootObject myObj))
-            {
-                RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
-                foreach (object[] obj in root.data)
-                {
-                    string dataType = (string)obj[0];
-                    Offer offerData = new();
-                    switch (dataType)
-                    {
-                        case "offer":
-                            if (Offer.TryParse(obj[1], out offerData))
-                            {
-                                string keyEvent = offerData.sport + "_" + offerData.event_id;
-                                if (!offers.ContainsKey(keyEvent))
-                                {
-                                    offers.TryAdd(keyEvent, offerData);
-                                }
-                                else
-                                {
-                                    offers.TryUpdate(keyEvent, offerData, offers[keyEvent]);
-                                }
-                                // await _hubContext.Clients.All.SendAsync("UpdateDataOffers", offers);
-
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        }
-
-
-        private async Task RemoveEvent(string message2)
-        {
-            if (RootObject.TryParse(message2, out RootObject myObj))
-            {
-                // Uspesno deserijalizovan objekat
-                Console.WriteLine(myObj.ts + " " + myObj.data);
-                RootObject root = JsonConvert.DeserializeObject<RootObject>(message2);
-                // Access the data
-                foreach (object[] obj in root.data)
-                {
-                    string dataType = (string)obj[0];
-                    Event eventObj = new();
-
-                    switch (dataType)
-                    {
-                        case "remove_event":
-                            if (Event.TryParse(obj[1], out eventObj))
-                            {
-                                string keyEvent = eventObj.sport + "_" + eventObj.event_id;
-
-                                if (_data.ContainsKey(keyEvent))
-                                {
-                                    var th = Task.Run(() => RemoveAsync(keyEvent, eventObj));
-                                }
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                Console.WriteLine("Greska pri deserijalizaciji.");
-            }
-        }
-        private async Task RemoveAsync(string key, Event eventObj)
-        {
-            KeyValuePair<string, Event> eventKeyValuePair = new(key, eventObj);
-                _data.TryRemove(eventKeyValuePair);
-                await _hubContext.Clients.All.SendAsync("UpdateData", _data);
-
-            
-
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
     }
 }

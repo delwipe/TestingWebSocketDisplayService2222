@@ -23,8 +23,8 @@ namespace TestingWebSocketDisplayService2222.Controllers
             _logger = logger;
             _hubContext = hubContext;
             //_data = backgroundTask._data;
-            myBackgroundTask = new MyBackgroundTask(_data, hubContext);
-            var allData = myBackgroundTask._data;
+            //myBackgroundTask = new MyBackgroundTask(_data, hubContext);
+            //var allData = myBackgroundTask._data;
         }
 
         public IActionResult Index()
