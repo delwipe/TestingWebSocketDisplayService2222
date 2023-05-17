@@ -3,8 +3,10 @@
     .build();
 //connection SignalR started
 connection.start().then(function () {
-    // console.log('SignalR connected');
+     console.log('SignalR connected');
 });
+var receivedData = [];
+
 var footballBtn = document.getElementById('btnFootball');
 var baseballBtn = document.getElementById('btnBaseball');
 var tennisBtn = document.getElementById('btnTennis');
@@ -196,6 +198,11 @@ function displayEventData(sport) {
         allItems = [];
 
         Object.keys(data).forEach(function (eventId) {
+            if (Array.isArray(data)) {
+                receivedData = data; // Ažuriranje receivedData samo ako je data niz
+                // Ostatak vaše logike za ažuriranje tabele ili druge manipulacije podacima
+            }
+            //console.log("EventID = " + eventId);
             var eventData = data[eventId];
             if (sport == "displayAll" || sport == "") {
                 SetOptionsForLeagueList(allItems, eventData, selectList);
@@ -266,6 +273,8 @@ function highlightButton(clickedButton, currentSport) {
                 // nije kliknuto
                 button.classList.remove('btn-danger');
                 button.classList.add('btn-primary');
+                console.log("current sport: EMPTY " );
+
                 currentSport = "";
             }
             else {
@@ -279,6 +288,8 @@ function highlightButton(clickedButton, currentSport) {
         else {
             button.classList.remove('btn-danger');
             button.classList.add('btn-primary');
+            console.log("current sport: " + currentSport);
+
         }
     });
 }
@@ -358,30 +369,39 @@ function HandlingSports() {
         option.value = sport;
         if (sport === "fb_ht") {
             option.text = "Football, first half";
+            option.value = "fb_ht";
         }
         if (sport === "fb_et") {
             option.text = "Football, extra time";
+            option.value = "fb_et";
         }
         if (sport === "fb_corn") {
             option.text = "Football, the number of corners awarded in 90 minutes";
+            option.value = "fb_corn";
         }
         if (sport === "fb_corn_ht") {
             option.text = "Football, the number of corners, first half only";
+            option.value = "fb_corn_ht";
         }
         if (sport === "fb_htft") {
             option.text = "Football, bets on combined result at half-time and full-time";
+            option.value = "fb_htft";
         }
         if (sport === "af") {
             option.text = "American football (includes Canadian football)";
+            option.value = "af";
         }
         if (sport === "ru") {
             option.text = "Rugby Union";
+            option.value = "ru";
         }
         if (sport === "rl") {
             option.text = "Rugby League";
+            option.value = "rl";
         }
         if (sport === "ih") {
             option.text = "Ice Hockey";
+            option.value = "ih";
         }
         if (sport === "boxing") {
             option.text = "Boxing";

@@ -22,3 +22,9 @@ select {
 #show-options {
     margin-top: 10px;
 }
+.input-group-append{
+    margin-left: 10px !important;
+}
+#custom-searchbar {
+    padding-bottom: 10px !important;
+}

@@ -21,6 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="wwwroot\css\events-display.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\Icons\american-football.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -37,7 +40,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Icons\football-game.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Icons\hockey.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -49,6 +52,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Icons\tennis.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\buttons-handling.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\sports-list.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\table-events-handle.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
