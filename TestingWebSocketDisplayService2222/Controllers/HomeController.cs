@@ -16,20 +16,21 @@ namespace TestingWebSocketDisplayService2222.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IHubContext<MyHub> _hubContext;
         private readonly ConcurrentDictionary<string, Event> _data;
-        private readonly MyBackgroundTask myBackgroundTask;
+        private readonly MyBackgroundTask _backgroundTask;
 
-        public HomeController(ILogger<HomeController> logger, IHubContext<MyHub> hubContext)
+        public HomeController(ILogger<HomeController> logger, IHubContext<MyHub> hubContext, MyBackgroundTask backgroundTask)
         {
             _logger = logger;
             _hubContext = hubContext;
             //_data = backgroundTask._data;
-            //myBackgroundTask = new MyBackgroundTask(_data, hubContext);
+            _backgroundTask = backgroundTask;
             //var allData = myBackgroundTask._data;
         }
 
         public IActionResult Index()
         {
             //StartBackgroundTask();
+            ViewBag.Name = "Events in background count: " + _backgroundTask._data.Count;
 
             return View();
         }

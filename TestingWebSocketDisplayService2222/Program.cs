@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using TestingWebSocketServiceDisplay2222.Hubs;
 using TestingWebSocketServiceDisplay2222.Models;
 using TestingWebSocketServiceDisplay2222.Services;
-using TestingWebSocketServiceDisplay2222.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,9 +12,9 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration); // Add IConfiguration to the service container
 builder.Services.AddSingleton(builder.Configuration.GetValue<string>("WebSocketUrl")); // Register the WebSocketUrl value as a service
 builder.Services.AddSingleton<ConcurrentDictionary<string, Event>>();
-
 // Register the background task as a hosted service
 builder.Services.AddHostedService<MyBackgroundTask>();
+builder.Services.AddSingleton<MyBackgroundTask>();
 
 var app = builder.Build();
 
