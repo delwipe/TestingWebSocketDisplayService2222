@@ -36,6 +36,7 @@
         <col span="1" style="width: 15.83%;">
         <col span="1" style="width: 15.83%;">
         <col span="1" style="width: 15.83%;">
+
     </colgroup>
     <thead>
         <tr>
@@ -53,20 +54,95 @@
     <tbody></tbody>
 </table>
 
+
+
+
+<div id="data-container">
+</div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
 <script src="~/js/sports-list.js"></script>
 <script src="~/js/buttons-handling.js"></script>
 
-
-<!-- Skripta za MDB Autocomplete -->
-
 <script>
+    var counter = 0;
+    var connection = new signalR.HubConnectionBuilder()
+        .withUrl('/MyHub')
+        .build();
+    //connection SignalR started
+    connection.on("UpdateDataNEW", function (key, updatedData) {
+    // Obrada primljenih ažuriranih podataka
+    //console.log("Key:", key);
+    //console.log("Updated Data:", updatedData);
+    var table = document.getElementById("eventsTable");
 
+        var row = document.createElement("tr");
+        counter++;
+        console.log("Counter: " + counter);
+        row.innerHTML = createEventRow(key, updatedData);
+        table.appendChild(row);
+    //createEventRow(updatedData);
+        //SetRow(rows, table, updatedData);
 
-  
+});
 
+    connection.start().then(function () {
+        console.log("SignalR connected.");
 
+        // Pridruživanje odgovarajućoj grupi
+        
+    
+    });
+    function getImagePath(sport) {
+        switch (sport) {
+            case "ru":
+                return "Icons/rugby-union.png";
+            case "rl":
+                return "Icons/rugby-league.png";
+            case "baseball":
+                return "Icons/baseball.png";
+            case "af":
+                return "Icons/american-football.png";
+            case "basket":
+                return "Icons/basketball.png";
+            case "basket_ht":
+                return "Icons/basketball_ht.jpg";
+            case "boxing":
+                return "Icons/boxing-gloves.png";
+            case "cricket":
+                return "Icons/cricket.png";
+            case "fb":
+            case "fb_ht":
+            case "fb_et":
+            case "fb_corn":
+            case "fb_corn_ht":
+            case "fb_htft":
+                return "Icons/football-game.png";
+            case "ih":
+                return "Icons/hockey.png";
+            case "tennis":
+                return "Icons/tennis.png";
+            default:
+                return "";
+        }
+    }
+
+        // Creating new Row for event
+    function createEventRow(key, eventData) {
+        var imagePath = getImagePath(eventData.sport);
+        return `
+                      <td><p style="display: none">${key}</p></td>
+                      <td><img style="width:30px" src="${imagePath}" /></td>
+                      <td>${eventData.sport}</td>
+                      <td>${eventData.competition_name}</td>
+                      <td>${eventData.competition_country}</td>
+                      <td>${eventData.home}</td>
+                      <td>${eventData.away}</td>
+                      <td>${eventData.ir_status}</td>
+                      <td>${eventData.start_time}</td>
+                  `;
+
+    }
     //connection.on("UpdateData", function (data) {
     //    var value = $("#myInput").val().toLowerCase();
     //    $("#myTable tr").filter(function () {

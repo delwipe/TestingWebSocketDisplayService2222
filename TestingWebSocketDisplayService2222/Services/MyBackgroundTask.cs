@@ -148,10 +148,10 @@ namespace TestingWebSocketServiceDisplay2222.Services
         private async Task RemoveAsync(string key, Event eventObj)
         {
             KeyValuePair<string, Event> eventKeyValuePair = new(key, eventObj);
-                _data.TryRemove(eventKeyValuePair);
-                await _hubContext.Clients.All.SendAsync("UpdateData", _data);
+                _data.Remove(key, out eventObj);
+            // await _hubContext.Clients.All.SendAsync("UpdateData", _data);
+            await _hubContext.Clients.All.SendAsync("UpdateDataNEW", key, null);
 
-            
 
         }
 
@@ -222,7 +222,7 @@ namespace TestingWebSocketServiceDisplay2222.Services
                                         }
                                         else if (message2.Contains("info"))
                                         {
-                                            _data.Clear();
+                                            //_data.Clear();
                                         }
                                         else if (!message2.Contains("remove_event") && !message2.Contains("[\r\n\"info\",\r\n{"))
                                         {
@@ -275,27 +275,32 @@ namespace TestingWebSocketServiceDisplay2222.Services
                                                                                 eventObj.start_time = dateTimeParsed;
                                                                             }
                                                                             _data.TryAdd(keyEvent, eventObj);
-                                                                            //string messageForWS = "[\"register_event\", " + "\"" + eventObj.sport + "\", " + "\"" + eventObj.event_id + "\"]";
-                                                                            //byte[] messageBytes = Encoding.UTF8.GetBytes(messageForWS);
-                                                                            //await client.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                                                                        //string messageForWS = "[\"register_event\", " + "\"" + eventObj.sport + "\", " + "\"" + eventObj.event_id + "\"]";
+                                                                        //byte[] messageBytes = Encoding.UTF8.GetBytes(messageForWS);
+                                                                        //await client.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
 
-                                                                            // Notify all connected clients of the updated data using SignalR
+                                                                        // Notify all connected clients of the updated data using SignalR
 
-                                                                            //   await _hubContext.Clients.All.SendAsync("UpdateData", eventObj);
+                                                                        //   await _hubContext.Clients.All.SendAsync("UpdateData", eventObj);
 
-                                                                            await _hubContext.Clients.All.SendAsync("UpdateData", _data);
+                                                                        // await _hubContext.Clients.All.SendAsync("UpdateData", _data);
+                                                                        await _hubContext.Clients.All.SendAsync("UpdateDataNEW", keyEvent, eventObj);
 
-                                                                        }
-                                                                        else
+                                                                      
+
+                                                                        
+
+                                                                    }
+                                                                    else
                                                                         {
                                                                             var containsVal = _data[keyEvent];
                                                                             //eventObj.sport = "UPDATED " + eventObj.sport;
                                                                             _data.TryUpdate(keyEvent, eventObj, containsVal);
-                                                                            //await _hubContext.Clients.All.SendAsync("UpdateData", _data);
+                                                                        //await _hubContext.Clients.All.SendAsync("UpdateData", _data);
 
-                                                                            //await _hubContext.Clients.All.SendAsync("UpdateData", keyEvent, eventObj);
-
-                                                                        }
+                                                                        //await _hubContext.Clients.All.SendAsync("UpdateData", keyEvent, eventObj);
+                                                                        await _hubContext.Clients.All.SendAsync("UpdateDataNEW", keyEvent, eventObj);
+                                                                    }
                                                                     }
 
                                                                 }
