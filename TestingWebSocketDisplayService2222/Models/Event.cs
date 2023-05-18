@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
+using System.Collections;
 
-namespace TestingWebSocketServiceDisplay2222.Models
+namespace TestingWebSocketDisplayService2222.Models
 {
     public class Event
     {
@@ -26,6 +27,8 @@ namespace TestingWebSocketServiceDisplay2222.Models
                 return false;
             }
         }
+
+     
     }
 
 }

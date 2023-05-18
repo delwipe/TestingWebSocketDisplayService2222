@@ -1,6 +1,6 @@
 ﻿<link rel="stylesheet" href="~/css/events-display.css">
-<p>@ViewBag.Name</p>
-
+@*@model System.Collections.Concurrent.ConcurrentDictionary<string, TestingWebSocketDisplayService2222.Models.Event>
+*@<p>@ViewBag.Name</p>
 <div class="d-flex justify-content-sm-end" id="custom-searchbar">
     <form class="form-inline form-inline-custom">
         <div class="input-group" id="search-autocomplete">
@@ -53,133 +53,83 @@
             <th>Start Time</th>
         </tr>
     </thead>
-    <tbody></tbody>
+   
+    <tbody>
+        
+    </tbody>
 </table>
-
-
-
 
 <div id="data-container">
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
-<script src="~/js/sports-list.js"></script>
-<script src="~/js/buttons-handling.js"></script>
-
 <script>
+
     var counter = 0;
     var connection = new signalR.HubConnectionBuilder()
         .withUrl('/MyHub')
         .build();
     //connection SignalR started
     connection.on("UpdateDataNEW", function (key, updatedData) {
-    // Obrada primljenih ažuriranih podataka
-    //console.log("Key:", key);
-    //console.log("Updated Data:", updatedData);
-    var table = document.getElementById("eventsTable");
+        // Obrada primljenih ažuriranih podataka
+        //console.log("Key:", key);
+        //console.log("Updated Data:", updatedData);
+        var table = document.getElementById("eventsTable");
 
         var row = document.createElement("tr");
         counter++;
         console.log("Counter: " + counter);
-        row.innerHTML = createEventRow(key, updatedData);
+        row.innerHTML = CreateEventRow(key, updatedData);
         table.appendChild(row);
-    //createEventRow(updatedData);
+        //createEventRow(updatedData);
         //SetRow(rows, table, updatedData);
-
-});
+    });
 
     connection.start().then(function () {
         console.log("SignalR connected.");
-
         // Pridruživanje odgovarajućoj grupi
-        
-    
     });
-    function getImagePath(sport) {
-        switch (sport) {
-            case "ru":
-                return "Icons/rugby-union.png";
-            case "rl":
-                return "Icons/rugby-league.png";
-            case "baseball":
-                return "Icons/baseball.png";
-            case "af":
-                return "Icons/american-football.png";
-            case "basket":
-                return "Icons/basketball.png";
-            case "basket_ht":
-                return "Icons/basketball_ht.jpg";
-            case "boxing":
-                return "Icons/boxing-gloves.png";
-            case "cricket":
-                return "Icons/cricket.png";
-            case "fb":
-            case "fb_ht":
-            case "fb_et":
-            case "fb_corn":
-            case "fb_corn_ht":
-            case "fb_htft":
-                return "Icons/football-game.png";
-            case "ih":
-                return "Icons/hockey.png";
-            case "tennis":
-                return "Icons/tennis.png";
-            default:
-                return "";
-        }
-    }
+                    // Creating new Row for event
+                        //connection.on("UpdateData", function (data) {
+                        //    var value = $("#myInput").val().toLowerCase();
+                        //    $("#myTable tr").filter(function () {
+                        //        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                        //    });
+                        //});
 
-        // Creating new Row for event
-    function createEventRow(key, eventData) {
-        var imagePath = getImagePath(eventData.sport);
-        return `
-                      <td><p style="display: none">${key}</p></td>
-                      <td><img style="width:30px" src="${imagePath}" /></td>
-                      <td>${eventData.sport}</td>
-                      <td>${eventData.competition_name}</td>
-                      <td>${eventData.competition_country}</td>
-                      <td>${eventData.home}</td>
-                      <td>${eventData.away}</td>
-                      <td>${eventData.ir_status}</td>
-                      <td>${eventData.start_time}</td>
-                  `;
+                        //$("#myInput").on("keyup", function () {
+                        //    var value = $(this).val().toLowerCase();
+                        //    connection.on("UpdateData", value).catch(function (err) {
+                        //        console.error(err.toString());
+                        //    });
+                        //});
+                        //$(document).ready(function () {
+                        //    $("#myInput").on("keyup", function () {
+                        //        var value = $(this).val().toLowerCase();
+                        //        $("#myTable tr").filter(function () {
+                        //            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                        //        });
+                        //    });
+                        //});
 
-    }
-    //connection.on("UpdateData", function (data) {
-    //    var value = $("#myInput").val().toLowerCase();
-    //    $("#myTable tr").filter(function () {
-    //        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-    //    });
-    //});
+                            //
+                            //FOR OFFERS
 
-    //$("#myInput").on("keyup", function () {
-    //    var value = $(this).val().toLowerCase();
-    //    connection.on("UpdateData", value).catch(function (err) {
-    //        console.error(err.toString());
-    //    });
-    //});
-    //$(document).ready(function () {
-    //    $("#myInput").on("keyup", function () {
-    //        var value = $(this).val().toLowerCase();
-    //        $("#myTable tr").filter(function () {
-    //            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-    //        });
-    //    });
-    //});
-    
-        //
-        //FOR OFFERS
+                            //var container = document.getElementById('container');
+                            //// Define an event handler for the "UpdateData" event
+                            //connection.on('UpdateDataOffers', function (data) {
+                            //        console.log('Data Offers:', data);
+                            //        var eventRow = document.createElement("p");
+                            //        eventRow.innerHTML = JSON.stringify(data);
 
-        //var container = document.getElementById('container');
-        //// Define an event handler for the "UpdateData" event
-        //connection.on('UpdateDataOffers', function (data) {
-        //        console.log('Data Offers:', data);
-        //        var eventRow = document.createElement("p");
-        //        eventRow.innerHTML = JSON.stringify(data);
+                            //        ////container.innerHTML = JSON.stringify(data);
+                            //        container.appendChild(eventRow);
 
-        //        ////container.innerHTML = JSON.stringify(data);
-        //        container.appendChild(eventRow);
-
-        //    });
+                            //    });
 
 </script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/js/sports-list.js"></script>
+<script src="~/js/buttons-handling.js"></script>
+<script src="~/js/image-path.js"></script>
+

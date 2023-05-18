@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using TestingWebSocketDisplayService2222.Models;
 
-namespace TestingWebSocketServiceDisplay2222.Models
+namespace TestingWebSocketDisplayService2222.Models
 {
     public class Offer
     {

@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using TestingWebSocketDisplayService2222.Models;
-using TestingWebSocketServiceDisplay2222.Models;
 
-namespace TestingWebSocketServiceDisplay2222.Hubs
+namespace TestingWebSocketDisplayService2222.Hubs
 {
     public class MyHub : Hub
     {

@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using TestingWebSocketDisplayService2222.Models;
-using TestingWebSocketServiceDisplay2222.Hubs;
-using TestingWebSocketServiceDisplay2222.Models;
-using TestingWebSocketServiceDisplay2222.Services;
+using TestingWebSocketDisplayService2222.Hubs;
+using TestingWebSocketDisplayService2222.Services;
 
 namespace TestingWebSocketDisplayService2222.Controllers
 {
@@ -32,7 +31,7 @@ namespace TestingWebSocketDisplayService2222.Controllers
             //StartBackgroundTask();
             ViewBag.Name = "Events in background count: " + _backgroundTask._data.Count;
 
-            return View();
+            return View(_backgroundTask._data);
         }
         //private void StartBackgroundTask()
         //{

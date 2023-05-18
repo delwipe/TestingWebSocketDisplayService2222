@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using System.Collections.Concurrent;
-using TestingWebSocketServiceDisplay2222.Hubs;
-using TestingWebSocketServiceDisplay2222.Models;
-using TestingWebSocketServiceDisplay2222.Services;
+using TestingWebSocketDisplayService2222.Hubs;
+using TestingWebSocketDisplayService2222.Models;
+using TestingWebSocketDisplayService2222.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

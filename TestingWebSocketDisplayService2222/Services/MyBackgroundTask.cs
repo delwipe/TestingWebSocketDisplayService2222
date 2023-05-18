@@ -3,15 +3,14 @@ using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text;
-using TestingWebSocketServiceDisplay2222.Hubs;
+using TestingWebSocketDisplayService2222.Hubs;
 using Newtonsoft.Json;
 using TestingWebSocketServiceDisplay.Models;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using TestingWebSocketServiceDisplay2222.Hubs;
-using TestingWebSocketServiceDisplay2222.Models;
+using TestingWebSocketDisplayService2222.Models;
 using System;
 using TestingWebSocketDisplayService2222.Models;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
@@ -19,7 +18,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 
-namespace TestingWebSocketServiceDisplay2222.Services
+namespace TestingWebSocketDisplayService2222.Services
 {
     public class MyBackgroundTask : BackgroundService
     {
