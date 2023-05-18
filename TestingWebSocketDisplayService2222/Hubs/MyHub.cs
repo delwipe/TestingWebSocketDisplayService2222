@@ -5,15 +5,15 @@ namespace TestingWebSocketDisplayService2222.Hubs
 {
     public class MyHub : Hub
     {
-        public async Task UpdateData(Dictionary<string, Models.Event> data)
+        public async Task UpdateData(Dictionary<string, Event> data)
         {
             await Clients.All.SendAsync("UpdateData", data);
         }
-        public async Task GetAllData(Dictionary<string, Models.Event> data)
+        public async Task GetAllData(Dictionary<string, Event> data)
         {
             await Clients.All.SendAsync("GetAllData", data);
         }
-        public async Task UpdateDataNEW(string key, Models.Event updatedData)
+        public async Task UpdateDataNEW(string key, Event updatedData)
         {
             // Obrada ažuriranog podatka i slanje klijentima
             await Clients.All.SendAsync("UpdateDataNEW", key, updatedData);

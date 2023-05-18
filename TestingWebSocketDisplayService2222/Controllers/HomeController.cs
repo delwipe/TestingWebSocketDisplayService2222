@@ -5,6 +5,7 @@ using System.Diagnostics;
 using TestingWebSocketDisplayService2222.Models;
 using TestingWebSocketDisplayService2222.Hubs;
 using TestingWebSocketDisplayService2222.Services;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 
 namespace TestingWebSocketDisplayService2222.Controllers
 {
@@ -25,7 +26,77 @@ namespace TestingWebSocketDisplayService2222.Controllers
             _backgroundTask = backgroundTask;
             //var allData = myBackgroundTask._data;
         }
+        [HttpGet]
+        public IActionResult GetDictionary(string sport, bool isLiveClicked, bool isPreMatchClicked, string league)
+        {
+            Dictionary<string, Event> filteredSports = new();
+            // Popunite rečnik sa podacima
+            foreach (var item in _backgroundTask._data) {
+                var keyEvent = item.Key;
+                var valueEvent = item.Value;
+                if(sport == "" || sport == null || sport == "More Sports" && (league == "" || league == null))
+                {
+                        filteredSports.Add(keyEvent, valueEvent);
+                    
+                }
+                else if (!isLiveClicked && !isPreMatchClicked)
+                {
+                    if (league == "" || league == null)
+                    {
+                        if (valueEvent.sport == sport)
+                        {
+                            filteredSports.Add(keyEvent, valueEvent);
+                        }
+                    }
+                    else
+                    {
+                        if (valueEvent.sport == sport && valueEvent.competition_name == league)
+                        {
+                            filteredSports.Add(keyEvent, valueEvent);
+                        }
+                    }
+                    
+                }
+                else if (isLiveClicked && !isPreMatchClicked)
+                {
+                    if (league == "" || league == null)
+                    {
+                        if (valueEvent.sport == sport && valueEvent.ir_status == "in_running")
+                        {
+                            filteredSports.Add(keyEvent, valueEvent);
+                        }
+                    }
+                    else
+                    {
+                        if (valueEvent.sport == sport && valueEvent.ir_status == "in_running" && valueEvent.competition_name == league)
+                        {
+                            filteredSports.Add(keyEvent, valueEvent);
+                        }
+                    }                   
+                }
+                else if (!isLiveClicked && isPreMatchClicked)
+                {
+                    if (league == "" || league == null)
+                    {
+                        if (valueEvent.sport == sport && valueEvent.ir_status == "pre_event")
+                        {
+                            filteredSports.Add(keyEvent, valueEvent);
+                        }
+                    }
+                    else
+                    {
+                        if (valueEvent.sport == sport && valueEvent.ir_status == "pre_event" && valueEvent.competition_name == league)
+                        {
+                            filteredSports.Add(keyEvent, valueEvent);
+                        }
+                    }
+                     
+                }
 
+
+            }
+            return Json(filteredSports);
+        }
         public IActionResult Index()
         {
             //StartBackgroundTask();

@@ -1,6 +1,6 @@
 ﻿<link rel="stylesheet" href="~/css/events-display.css">
-@*@model System.Collections.Concurrent.ConcurrentDictionary<string, TestingWebSocketDisplayService2222.Models.Event>
-*@<p>@ViewBag.Name</p>
+@model System.Collections.Concurrent.ConcurrentDictionary<string, TestingWebSocketDisplayService2222.Models.Event>
+<p>@ViewBag.Name</p>
 <div class="d-flex justify-content-sm-end" id="custom-searchbar">
     <form class="form-inline form-inline-custom">
         <div class="input-group" id="search-autocomplete">
@@ -55,81 +55,609 @@
     </thead>
    
     <tbody>
-        
+       
+        @foreach (var kvp in Model)
+        {
+            var key = kvp.Key;
+            var eventData = kvp.Value;
+            var imagePath = getImagePath(eventData.sport);
+
+            <tr>
+                <td data-key="@key"><img data-key="sport" style="width:30px" src="@imagePath" /></td>
+@*                <td>@eventData.sport</td>
+*@              <td data-key="competition_name">@eventData.competition_name</td>
+                <td data-key="competition_country">@eventData.competition_country</td>
+                <td data-key="home">@eventData.home</td>
+                <td data-key="away">@eventData.away</td>
+                <td data-key="ir_status">@eventData.ir_status</td>
+                <td data-key="start_time">@eventData.start_time</td>
+            </tr>
+            
+        }
+       
+      
     </tbody>
 </table>
 
 <div id="data-container">
 </div>
-<script>
-
-    var counter = 0;
-    var connection = new signalR.HubConnectionBuilder()
-        .withUrl('/MyHub')
-        .build();
-    //connection SignalR started
-    connection.on("UpdateDataNEW", function (key, updatedData) {
-        // Obrada primljenih ažuriranih podataka
-        //console.log("Key:", key);
-        //console.log("Updated Data:", updatedData);
-        var table = document.getElementById("eventsTable");
-
-        var row = document.createElement("tr");
-        counter++;
-        console.log("Counter: " + counter);
-        row.innerHTML = CreateEventRow(key, updatedData);
-        table.appendChild(row);
-        //createEventRow(updatedData);
-        //SetRow(rows, table, updatedData);
-    });
-
-    connection.start().then(function () {
-        console.log("SignalR connected.");
-        // Pridruživanje odgovarajućoj grupi
-    });
-                    // Creating new Row for event
-                        //connection.on("UpdateData", function (data) {
-                        //    var value = $("#myInput").val().toLowerCase();
-                        //    $("#myTable tr").filter(function () {
-                        //        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-                        //    });
-                        //});
-
-                        //$("#myInput").on("keyup", function () {
-                        //    var value = $(this).val().toLowerCase();
-                        //    connection.on("UpdateData", value).catch(function (err) {
-                        //        console.error(err.toString());
-                        //    });
-                        //});
-                        //$(document).ready(function () {
-                        //    $("#myInput").on("keyup", function () {
-                        //        var value = $(this).val().toLowerCase();
-                        //        $("#myTable tr").filter(function () {
-                        //            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                        //        });
-                        //    });
-                        //});
-
-                            //
-                            //FOR OFFERS
-
-                            //var container = document.getElementById('container');
-                            //// Define an event handler for the "UpdateData" event
-                            //connection.on('UpdateDataOffers', function (data) {
-                            //        console.log('Data Offers:', data);
-                            //        var eventRow = document.createElement("p");
-                            //        eventRow.innerHTML = JSON.stringify(data);
-
-                            //        ////container.innerHTML = JSON.stringify(data);
-                            //        container.appendChild(eventRow);
-
-                            //    });
-
-</script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+
 <script src="~/js/sports-list.js"></script>
 <script src="~/js/buttons-handling.js"></script>
 <script src="~/js/image-path.js"></script>
+@functions {
+
+
+    string getImagePath(string sport)
+    {
+        switch (sport)
+        {
+            case "ru":
+                return "Icons/rugby-union.png";
+            case "rl":
+                return "Icons/rugby-league.png";
+            case "baseball":
+                return "Icons/baseball.png";
+            case "af":
+                return "Icons/american-football.png";
+            case "basket":
+                return "Icons/basketball.png";
+            case "basket_ht":
+                return "Icons/basketball_ht.jpg";
+            case "boxing":
+                return "Icons/boxing-gloves.png";
+            case "cricket":
+                return "Icons/cricket.png";
+            case "fb":
+            case "fb_ht":
+            case "fb_et":
+            case "fb_corn":
+            case "fb_corn_ht":
+            case "fb_htft":
+                return "Icons/football-game.png";
+            case "ih":
+                return "Icons/hockey.png";
+            case "tennis":
+                return "Icons/tennis.png";
+            default:
+                return "";
+        }
+    }
+}
+
+<script>
+    var competitionNames = [];
+
+    function addToSet(set, item) {
+        if (!set.includes(item)) {
+            set.push(item);
+        }
+    }
+    $(document).ready(function () {
+
+        competitionNames = [];
+        console.log("competitionNames should be empty: " + competitionNames.length); 
+        var rowCounts = selectList.options.length;
+
+        console.log("select list leagues has: " + rowCounts);
+        for (var i = rowCounts - 1; i > 0; i--) {
+            selectList.remove(i);
+        }
+        console.log("competitionNames count: " + competitionNames.length);
+        console.log("selectList count: " + selectList.children.length);
+        @foreach (var kvp in Model)
+    {
+        var eventData = kvp.Value;
+        @:addToSet(competitionNames, "@eventData.competition_name");
+    }
+            competitionNames.sort();
+        var selectElement = document.getElementById("listSelect");
+        competitionNames.forEach(function (name) {
+            var option = document.createElement("option");
+            option.text = name;
+            selectElement.add(option);
+        });
+        console.log("competitionNames count: " + competitionNames.length);
+        console.log("selectList count: " + selectList.children.length);
+    });
+
+   
+    //    competitionNames.sort();
+
+    //    // Dodavanje stavki u listu
+    //    var competitionList = document.getElementById("listSelect");
+    //    competitionNames.forEach(function (name) {
+    //        var li = document.createElement("li");
+    //        li.textContent = name;
+    //        competitionList.appendChild(li);
+    //    });
+    //});
+
+
+
+    function GetSport(sport){
+
+        var rowCounts = selectList.options.length;
+        console.log("select list leagues has: " + rowCounts);
+        if(currentLeague === null || currentLeague === ""){
+            for (var i = rowCounts - 1; i > 0; i--) {
+
+                selectList.remove(i);
+            }
+        }
+        
+        competitionNames = [];
+        console.log("competitionNames count: " + competitionNames.length);
+        console.log("selectList count: " + selectList.children.length);
+        console.log('clicked: ' + sport);
+        var table = document.getElementById("eventsTable");
+        var rowCount = table.rows.length;
+        for (var i = rowCount - 1; i > 0; i--) {
+
+            table.deleteRow(i);
+        }        
+        $.ajax({
+            url: "/Home/GetDictionary",
+            method: "GET",
+            data: {
+                sport: sport,
+                isLiveClicked: isLiveClicked,
+                isPreMatchClicked: isPreMatchClicked,
+                league: currentLeague
+            },
+            dataType: "json",
+            success: function (response) {
+                for (var key in response) {
+                    if (response.hasOwnProperty(key)) {
+                        var event = response[key];
+                        addToSet(competitionNames, event.competition_name);
+
+                        //console.log(event);
+                        var row = document.createElement("tr");
+                        row.innerHTML = createEventRow(key, event);
+                        table.appendChild(row);
+                    }
+                }
+                competitionNames.sort();
+                var selectElement = document.getElementById("listSelect");
+                competitionNames.forEach(function (name) {
+                    var option = document.createElement("option");
+                    option.text = name;
+                    selectElement.add(option);
+                });
+                console.log("competitionNames count: " + competitionNames.length);
+                console.log("selectList count: " + selectList.children.length);
+
+                //console.log('response: ' + y);
+               
+            },
+            error: function (xhr, status, error) {
+                // Ovdje rukujte greškama pri AJAX zahtjevu
+                console.error(error);
+            }
+        });
+    }
+// Making connection
+    var connection = new signalR.HubConnectionBuilder()
+        .withUrl('/MyHub')
+        .build();
+   //Starting connection
+    connection.start().then(function () {
+        console.log("SignalR connected.");
+    });
+    // Restarting connection
+    function restartConnection() {
+        connection.start()
+        .then(function () {
+            console.log("The connection was successfully re-established");
+            // Ovde možete izvršiti bilo koje dodatne radnje nakon ponovnog uspostavljanja veze
+        })
+        .catch(function (err) {
+            console.error("An error occurred while re-establishing the connection: " + err);
+            restartConnection();
+        });
+    }
+    // When the connection is broken, call the function to restart the connection
+    connection.onclose(function () {
+        console.log("Connection is terminated.");
+        restartConnection();
+    });
+
+    //Calling update data
+    connection.on("UpdateDataNEW", function (key, updatedData) {
+    var table = document.getElementById("eventsTable");
+    //check if updated data is deleted
+    if (updatedData == null) {   
+        console.log("Object == null");
+        var existingRowForRemove = table.querySelectorAll(`td[data-key="${key}"]`);
+        existingRowForRemove.forEach(function (td) {
+        var tr = td.parentNode;
+        tr.style.background = 'red';
+        });
+    } 
+    else {
+            if (currentSport !== "") {
+                if (updatedData.sport !== currentSport) {
+                    return;
+                }
+            }
+      
+        var existingRow = table.querySelector(`td[data-key="${key}"]`);
+        if (existingRow !== null) {            
+        console.log("Element already exists with key:", key);
+        //var rowCount = table.rows.length;              
+        var tr = existingRow.parentNode; 
+        tr.style.background = 'blue'; 
+        var newRow = document.createElement("tr"); 
+        newRow.style.background = "green";
+        newRow.innerHTML = createEventRow(key, updatedData);
+        tr.parentNode.replaceChild(newRow, tr);
+        } else {
+          // Element doesn't exist in table
+          var row = document.createElement("tr");   
+          row.innerHTML = createEventRow(key, updatedData);
+          table.appendChild(row);
+                addToSet(competitionNames, updatedData.competition_name);
+                console.log('adding New League');
+                var insertIndex = 0;
+                while (insertIndex < competitionNames.length && updatedData.competition_name > competitionNames[insertIndex]) {
+                    insertIndex++;
+                }
+                var option = document.createElement("option");
+                option.text = updatedData.competition_name;
+                console.log('adding league at index: ' + insertIndex);
+                // Insert the new option at the determined index
+                selectList.add(option, insertIndex);         
+        }
+    }
+});
+    // Creating new Row for event
+    function createEventRow(key, eventData) {
+        var imagePath = getImagePath(eventData.sport);
+        return `
+            <td data-key=${key}><img data-key="sport" style="width:30px" src="${imagePath}" /></td>
+            <td data-key="competition_name">${eventData.competition_name}</td>
+            <td data-key="competition_country">${eventData.competition_country}</td>
+            <td data-key="home">${eventData.home}</td>
+            <td data-key="away">${eventData.away}</td>
+            <td data-key="ir_status">${eventData.ir_status}</td>
+            <td data-key="start_time">${eventData.start_time}</td>
+        `;
+    }
+    //
+    //FOR OFFERS
+
+    //var container = document.getElementById('container');
+    //// Define an event handler for the "UpdateData" event
+    //connection.on('UpdateDataOffers', function (data) {
+    //        console.log('Data Offers:', data);
+    //        var eventRow = document.createElement("p");
+    //        eventRow.innerHTML = JSON.stringify(data);
+
+    //        ////container.innerHTML = JSON.stringify(data);
+    //        container.appendChild(eventRow);
+
+    //    });
+    // Creating new Row for event
+    function SetOptionsForLeagueList(allItems, eventData, selectList) {
+        if (allItems.indexOf(eventData.competition_name) == -1) {
+
+            allItems.push(eventData.competition_name);
+            var option = document.createElement("option");
+            option.text = eventData.competition_name;
+            option.value = eventData.competition_name;
+            selectList.add(option);
+        }
+    }
+    function highlightButton(clickedButton) {
+        const buttons = document.querySelectorAll(".event-button");
+        selectListSports.selectedIndex = 0;
+        buttons.forEach(button => {
+            if (button === clickedButton) {
+                if (button.classList.contains('btn-danger')) {
+                    divLivePreMatch.classList.remove('d-flex');
+                    divLivePreMatch.classList.add('d-none');
+                    // nije kliknuto
+                    button.classList.remove('btn-danger');
+                    button.classList.add('btn-primary');
+                    currentSport = "";
+                    currentLeague = "";
+                    var rowCount = selectList.options.length;
+                    for (var i = rowCount - 1; i > 0; i--) {
+                        selectList.remove(i);
+                    }
+                    competitionNames = [];
+                    selectList.selectedIndex = 0;
+                }
+                else {
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-danger');
+                    divLivePreMatch.classList.remove('d-none');
+                    divLivePreMatch.classList.add('d-flex');
+                    console.log("current sport: " + currentSport);
+                    currentLeague = "";
+                    var rowCount = selectList.options.length;
+                    for (var i = rowCount - 1; i > 0; i--) {
+
+                        selectList.remove(i);
+                    }
+                    competitionNames = [];
+                    selectList.selectedIndex = 0;
+                }
+            }
+            else {
+                button.classList.remove('btn-danger');
+                button.classList.add('btn-primary');
+                console.log("current sport: " + currentSport);
+
+            }
+        });
+    }
+    // Getting All data when page is loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        HandlingSports();
+        var rowCounts = selectList.options.length;
+        console.log("select list leagues has: " + rowCounts);
+        // GetSport('fb');
+
+        //displayEventData("fb");
+    });
+    function SetRow(rows, table, eventId, eventData) {
+        var row = rows[eventId];
+        checkingRow(table, row, eventId, rows);
+        row.innerHTML = createEventRow(eventData);
+    }
+    function checkingRow(table, row, eventId, rows) {
+        if (!row) {
+            // If no row exists, create a new one and add it to the table
+            row = table.insertRow();
+            rows[eventId] = row;
+        }
+    }
+
+    function HandlingSports() {
+        //Adding all sports to select list
+        var sports = ["fb_ht", "fb_et", "fb_corn", "fb_corn_ht", "fb_htft", "af", "ru", "rl", "ih", "boxing"];
+        sports.forEach(function (sport) {
+            var option = document.createElement("option");
+            option.value = sport;
+            if (sport === "fb_ht") {
+                option.text = "Football, first half";
+                option.value = "fb_ht";
+            }
+            if (sport === "fb_et") {
+                option.text = "Football, extra time";
+                option.value = "fb_et";
+            }
+            if (sport === "fb_corn") {
+                option.text = "Football, the number of corners awarded in 90 minutes";
+                option.value = "fb_corn";
+            }
+            if (sport === "fb_corn_ht") {
+                option.text = "Football, the number of corners, first half only";
+                option.value = "fb_corn_ht";
+            }
+            if (sport === "fb_htft") {
+                option.text = "Football, bets on combined result at half-time and full-time";
+                option.value = "fb_htft";
+            }
+            if (sport === "af") {
+                option.text = "American football (includes Canadian football)";
+                option.value = "af";
+            }
+            if (sport === "ru") {
+                option.text = "Rugby Union";
+                option.value = "ru";
+            }
+            if (sport === "rl") {
+                option.text = "Rugby League";
+                option.value = "rl";
+            }
+            if (sport === "ih") {
+                option.text = "Ice Hockey";
+                option.value = "ih";
+            }
+            if (sport === "boxing") {
+                option.text = "Boxing";
+                option.value = "boxing";
+            }
+            document.getElementById("listSelectSports").appendChild(option);
+        });
+    }
+    var footballBtn = document.getElementById('btnFootball');
+    var baseballBtn = document.getElementById('btnBaseball');
+    var tennisBtn = document.getElementById('btnTennis');
+    var basketballBtn = document.getElementById('btnBasket');
+    var liveBtn = document.getElementById('btnLive');
+    var preMatchBtn = document.getElementById('btn-pre-match');
+    var selectList = document.getElementById('listSelect');
+    var selectListSports = document.getElementById('listSelectSports');
+    var currentSport = "";
+    var currentLeague = "";
+    var isLiveClicked = false;
+    var isPreMatchClicked = false;
+    var divLivePreMatch = document.getElementById('show-options');
+    footballBtn.addEventListener("click", function () {
+        restartButtonLive();
+        restartButtonPrematch();
+        currentSport = "fb";
+        highlightButton(footballBtn, currentSport);
+        //displayEventData(currentSport);
+        GetSport(currentSport);
+
+    });
+    baseballBtn.addEventListener("click", function () {
+        restartButtonLive();
+        restartButtonPrematch();
+        currentSport = "baseball";
+        highlightButton(baseballBtn, currentSport);
+        //displayEventData(currentSport);
+        GetSport(currentSport);
+
+    });
+    tennisBtn.addEventListener("click", function () {
+        restartButtonLive();
+        restartButtonPrematch();
+        currentSport = "tennis";
+        highlightButton(tennisBtn, currentSport);
+        //displayEventData(currentSport);
+        GetSport(currentSport);
+
+    });
+    basketballBtn.addEventListener("click", function () {
+        restartButtonLive();
+        restartButtonPrematch();
+
+        currentSport = "basket";
+        highlightButton(basketballBtn, currentSport);
+        //displayEventData(currentSport);
+        GetSport(currentSport);
+    });
+    preMatchBtn.addEventListener("click", function () {
+        restartButtonLive();
+        if (isPreMatchClicked) {
+            highlightButtonPrematch();
+            isPreMatchClicked = false;
+            if (currentSport != "") {
+                GetSport(currentSport);
+
+                //displayEventData(currentSport);
+            }
+            else {
+                GetSport(currentSport);
+
+                //displayEventData("displayAll");
+            }
+        }
+        else {
+            isPreMatchClicked = true;
+            //console.log('isPreMatchClicked: ' + isPreMatchClicked);
+            highlightButtonPrematch();
+            if (currentSport != "") {
+                //console.log('calling display: currentSport' + currentSport);
+                GetSport(currentSport);
+                //displayEventData(currentSport);
+            }
+            else {
+                // console.log('calling display: in_running' + currentSport);
+                GetSport(currentSport);
+
+                //displayEventData("pre_event");
+
+            }
+        }
+    })
+    liveBtn.addEventListener("click", function () {
+        restartButtonPrematch();
+        console.log('currentSport: ' + currentSport);
+        if (isLiveClicked) {
+            highlightButtonLive();
+            isLiveClicked = false;
+            if (currentSport != "") {
+                GetSport(currentSport);
+
+                //displayEventData(currentSport);
+            }
+            else {
+                GetSport(currentSport);
+
+                //displayEventData("displayAll");
+
+            }
+        }
+        else {
+            isLiveClicked = true;
+            highlightButtonLive();
+
+            if (currentSport != "") {
+                GetSport(currentSport);
+
+                //displayEventData(currentSport);
+            }
+            else {
+                GetSport(currentSport);
+
+                //displayEventData("in_running");
+            }
+        }
+    });
+
+    // Changing button background if button is clicked
+    function highlightButtonLive() {
+        // selectListSports.selectedIndex = 0;
+        if (liveBtn.classList.contains('btn-primary')) {
+            liveBtn.classList.remove('btn-primary');
+            liveBtn.classList.add('btn-danger');
+        }
+        else {
+            liveBtn.classList.remove('btn-danger');
+            liveBtn.classList.add('btn-primary');
+        }
+    }
+    function highlightButtonPrematch() {
+        // selectListSports.selectedIndex = 0;
+        if (preMatchBtn.classList.contains('btn-primary')) {
+            preMatchBtn.classList.remove('btn-primary');
+            preMatchBtn.classList.add('btn-danger');
+        }
+        else {
+            preMatchBtn.classList.remove('btn-danger');
+            preMatchBtn.classList.add('btn-primary');
+        }
+    }
+    function restartButtonLive() {
+        //selectListSports.selectedIndex = 0;
+        isLiveClicked = false;
+        liveBtn.classList.remove('btn-danger');
+        liveBtn.classList.add('btn-primary');
+
+    }
+    function restartButtonPrematch() {
+        //selectListSports.selectedIndex = 0;
+        isPreMatchClicked = false;
+        preMatchBtn.classList.remove('btn-danger');
+        preMatchBtn.classList.add('btn-primary');
+    }
+    // Selecting League
+    selectList.addEventListener("change", function () {
+        var selectedValue = selectList.value;
+        const buttons = document.querySelectorAll(".event-button");
+        currentLeague = selectedValue;
+        GetSport(currentSport);
+        //displayEventData("getting_list_items");
+    });
+
+    // Selecting Other Sports
+    selectListSports.addEventListener("change", function () {
+        var selectedValue = selectListSports.value;
+        currentSport = selectedValue;
+        console.log('selected value = ' + currentSport);
+        const buttons = document.querySelectorAll(".event-button");
+        buttons.forEach(button => {
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-primary');
+        });
+        divLivePreMatch.classList.remove('d-none');
+        divLivePreMatch.classList.add('d-flex');
+        restartButtonLive();
+        restartButtonPrematch();
+        if (selectListSports.value === "More Sports") {
+            divLivePreMatch.classList.add('d-flex');
+
+            divLivePreMatch.classList.add('d-none');
+           // displayEventData("displayAll");
+
+        }
+        else {
+            GetSport(currentSport);
+            //displayEventData("getting_more_sports");
+
+        }
+    });
+</script>
+
 
