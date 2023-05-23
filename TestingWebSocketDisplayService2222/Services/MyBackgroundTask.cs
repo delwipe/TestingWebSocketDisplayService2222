@@ -111,7 +111,7 @@ namespace TestingWebSocketDisplayService2222.Services
                 {
                     foreach (var id in eventIds)
                     {
-                        await RegisterOffer(client,sport, id, false);
+                       // await RegisterOffer(client,sport, id, false);
                     }
                 }
             }
@@ -222,7 +222,7 @@ namespace TestingWebSocketDisplayService2222.Services
                                             eventObj.start_time = dateTimeParsed;
                                         }
                                         _data.TryAdd(keyEvent, eventObj);
-                                        await RegisterOffer(client, eventObj.sport, eventObj.event_id, true);
+                                       // await RegisterOffer(client, eventObj.sport, eventObj.event_id, true);
                                         //string messageForWS = $"[\"register_event\", \"{eventObj.sport}\", \"{eventObj.event_id}\"]";
                                         //byte[] messageBytes = Encoding.UTF8.GetBytes(messageForWS);
                                         //await client.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
